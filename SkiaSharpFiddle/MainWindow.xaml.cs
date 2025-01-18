@@ -106,9 +106,9 @@ namespace SkiaSharpFiddle
         {
             var blockSize = BaseBlockSize * scale;
 
-            var offsetMatrix = SKMatrix.MakeScale(2 * blockSize, blockSize);
-            var skewMatrix = SKMatrix.MakeSkew(0.5f, 0);
-            SKMatrix.PreConcat(ref offsetMatrix, ref skewMatrix);
+            var offsetMatrix = SKMatrix.CreateScale(2 * blockSize, blockSize);
+            var skewMatrix = SKMatrix.CreateScale(0.5f, 0);
+            offsetMatrix.PreConcat(skewMatrix);
 
             using (var path = new SKPath())
             using (var paint = new SKPaint())
