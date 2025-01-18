@@ -2,24 +2,36 @@
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using MvvmHelpers;
+using CommunityToolkit.Mvvm.ComponentModel;
 using SkiaSharp;
 
 namespace SkiaSharpFiddle
 {
-    public class MainViewModel : BaseViewModel
+    public partial class MainViewModel : ObservableObject
     {
         private readonly Compiler compiler = new Compiler();
 
+        [ObservableProperty]
         private string sourceCode;
 
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DrawingSize))]
+        [NotifyPropertyChangedFor(nameof(ImageInfo))]
         private int drawingWidth = 256;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DrawingSize))]
+        [NotifyPropertyChangedFor(nameof(ImageInfo))]
         private int drawingHeight = 256;
+
+        [ObservableProperty]
         private ColorCombination colorCombination;
 
+        [ObservableProperty]
         private SKImage rasterDrawing;
+        [ObservableProperty]
         private SKImage gpuDrawing;
-
+        [ObservableProperty]
         private Mode mode = Mode.Ready;
 
         private CancellationTokenSource cancellation;
@@ -59,57 +71,22 @@ namespace SkiaSharpFiddle
 
         public string SkiaSharpVersion { get; }
 
-        public string SourceCode
+        partial void OnDrawingWidthChanged(int value)
         {
-            get => sourceCode;
-            set => SetProperty(ref sourceCode, value, onChanged: OnSourceCodeChanged);
-        }
-
-        public int DrawingWidth
-        {
-            get => drawingWidth;
-            set => SetProperty(ref drawingWidth, value, onChanged: OnDrawingSizeChanged);
-        }
-
-        public int DrawingHeight
-        {
-            get => drawingHeight;
-            set => SetProperty(ref drawingHeight, value, onChanged: OnDrawingSizeChanged);
-        }
-
-        public ColorCombination ColorCombination
-        {
-            get => colorCombination;
-            set => SetProperty(ref colorCombination, value, onChanged: OnColorCombinationChanged);
-        }
-
-        public SKImage RasterDrawing
-        {
-            get => rasterDrawing;
-            private set => SetProperty(ref rasterDrawing, value);
-        }
-
-        public SKImage GpuDrawing
-        {
-            get => gpuDrawing;
-            private set => SetProperty(ref gpuDrawing, value);
-        }
-
-        public Mode Mode
-        {
-            get => mode;
-            private set => SetProperty(ref mode, value);
-        }
-
-        private void OnDrawingSizeChanged()
-        {
-            OnPropertyChanged(nameof(DrawingSize));
-            OnPropertyChanged(nameof(ImageInfo));
-
             GenerateDrawings();
         }
 
-        private async void OnSourceCodeChanged()
+        partial void OnDrawingHeightChanged(int value)
+        {
+            GenerateDrawings();
+        }
+
+        partial void OnSourceCodeChanged(string value)
+        {
+            HandleSourceCodeChangedAsync();
+        }
+
+        private async void HandleSourceCodeChangedAsync()
         {
             cancellation?.Cancel();
             cancellation = new CancellationTokenSource();
@@ -130,7 +107,7 @@ namespace SkiaSharpFiddle
             GenerateDrawings();
         }
 
-        private void OnColorCombinationChanged()
+        partial void OnColorCombinationChanged(ColorCombination value)
         {
             GenerateDrawings();
         }
